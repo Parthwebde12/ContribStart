@@ -16,7 +16,7 @@ app.use(cors({
   ],
   credentials: true
 }));
-
+app.use(express.json()); 
 app.use("/api/auth",    authRouter);
 app.use("/api/Issues",  issuesRouter);
 app.use("/api/tracker", trackerRouter);
