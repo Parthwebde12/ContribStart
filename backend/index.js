@@ -1,7 +1,7 @@
 const express  = require("express");
 const mongoose = require("mongoose");
 const cors     = require("cors");
-require("dotenv").config({ path: ".env.local" });
+require("dotenv").config();
 const authRouter    = require("./routes/auth");
 const issuesRouter  = require("./routes/Issues");
 const trackerRouter = require("./routes/tracker");
