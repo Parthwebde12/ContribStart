@@ -9,8 +9,13 @@ const trackerRouter = require("./routes/tracker");
 const app  = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
-app.use(express.json());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://contrib-start-drab.vercel.app"
+  ],
+  credentials: true
+}));
 
 app.use("/api/auth",    authRouter);
 app.use("/api/Issues",  issuesRouter);
