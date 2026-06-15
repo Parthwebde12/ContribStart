@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, LogOut, User } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const links = [
   { to: "/",          label: "Home"          },
@@ -12,7 +13,15 @@ const links = [
 
 export default function Navbar() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+    setOpen(false);
+  };
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
@@ -34,44 +43,45 @@ export default function Navbar() {
         {/* Desktop links */}
         <nav className="hidden md:flex items-center gap-0.5">
           {links.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
+            <Link key={link.to} to={link.to}
               className={`px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors ${
                 pathname === link.to
                   ? "bg-indigo-50 text-indigo-700"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-              }`}
-            >
+              }`}>
               {link.label}
             </Link>
           ))}
         </nav>
 
-        {/* CTA */}
+        {/* Right side */}
         <div className="hidden md:flex items-center gap-3">
-          <a
-            href="https://github.com"
-            target="_blank"
-            rel="noreferrer"
-            className="text-sm text-gray-500 hover:text-gray-800 transition-colors font-medium"
-          >
-            GitHub ↗
-          </a>
-          <Link
-            to="/issues"
-            className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition-colors"
-          >
-            Find an Issue
-          </Link>
+          {user ? (
+            <>
+              <span className="flex items-center gap-1.5 text-sm text-gray-600 font-medium">
+                <User size={14} /> {user.name}
+              </span>
+              <button onClick={handleLogout}
+                className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-600 transition-colors font-medium">
+                <LogOut size={14} /> Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login"
+                className="text-sm text-gray-600 hover:text-gray-900 transition-colors font-medium">
+                Log in
+              </Link>
+              <Link to="/register"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition-colors">
+                Sign up
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile toggle */}
-        <button
-          className="md:hidden p-1 text-gray-500 hover:text-gray-900"
-          onClick={() => setOpen(!open)}
-          aria-label="Toggle menu"
-        >
+        <button className="md:hidden p-1 text-gray-500 hover:text-gray-900" onClick={() => setOpen(!open)}>
           {open ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
@@ -80,26 +90,32 @@ export default function Navbar() {
       {open && (
         <div className="md:hidden border-t border-gray-100 bg-white px-4 py-3 space-y-1">
           {links.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              onClick={() => setOpen(false)}
+            <Link key={link.to} to={link.to} onClick={() => setOpen(false)}
               className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                 pathname === link.to
                   ? "bg-indigo-50 text-indigo-700"
                   : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
+              }`}>
               {link.label}
             </Link>
           ))}
-          <Link
-            to="/issues"
-            onClick={() => setOpen(false)}
-            className="block mt-2 bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg text-center"
-          >
-            Find an Issue
-          </Link>
+          {user ? (
+            <button onClick={handleLogout}
+              className="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 flex items-center gap-1.5">
+              <LogOut size={14} /> Logout ({user.name})
+            </button>
+          ) : (
+            <>
+              <Link to="/login" onClick={() => setOpen(false)}
+                className="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50">
+                Log in
+              </Link>
+              <Link to="/register" onClick={() => setOpen(false)}
+                className="block mt-2 bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg text-center">
+                Sign up
+              </Link>
+            </>
+          )}
         </div>
       )}
     </header>
