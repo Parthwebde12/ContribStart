@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./context/AuthContext";
 import Navbar from "./components/navbar";
 import Home from "./pages/Home";
 import Issues from "./pages/Issues";
@@ -8,6 +7,7 @@ import Tracker from "./pages/Tracker";
 import About from "./pages/About";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
