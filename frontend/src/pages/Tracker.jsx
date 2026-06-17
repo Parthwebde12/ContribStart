@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { api } from "../context/AuthContext";
-import { Plus, Trash2, Trophy, GitPullRequest, Eye, Loader2 } from "lucide-react";
+import { Plus, Trash2, Trophy, GitPullRequest, Eye, Loader2, StickyNote, Check } from "lucide-react";
 
 const MILESTONES = [
   { label: "First Steps",  req: 1,  type: "issues", icon: "🌱", desc: "Explore your first issue" },
@@ -17,6 +17,9 @@ export default function Tracker() {
   const [issueInput, setIssueInput] = useState("");
   const [prInput,    setPrInput]    = useState("");
   const [saving,     setSaving]     = useState(false);
+  const [openNotes,  setOpenNotes]  = useState(null);
+  const [noteDraft,  setNoteDraft]  = useState("");
+  const [savedNoteId, setSavedNoteId] = useState(null);
 
   const fetchProgress = async () => {
     setLoading(true);
@@ -51,6 +54,23 @@ export default function Tracker() {
       setData(res.data);
     } catch {
       setError("Could not delete entry.");
+    }
+  };
+
+  const openNoteEditor = (id, currentNotes) => {
+    setOpenNotes(id);
+    setNoteDraft(currentNotes || "");
+  };
+
+  const saveNote = async (type, id) => {
+    try {
+      const res = await api.patch(`/api/tracker/${type}/${id}`, { notes: noteDraft });
+      setData(res.data);
+      setSavedNoteId(id);
+      setTimeout(() => setSavedNoteId(null), 1500);
+      setOpenNotes(null);
+    } catch {
+      setError("Could not save note.");
     }
   };
 
@@ -89,7 +109,6 @@ export default function Tracker() {
         </div>
       )}
 
-      {/* Stats */}
       <div className="grid grid-cols-2 gap-4 mb-8">
         <div className="bg-indigo-600 text-white rounded-xl p-6">
           <Eye size={22} className="mb-3 opacity-80" />
@@ -128,7 +147,6 @@ export default function Tracker() {
         </div>
       </div>
 
-      {/* Log sections */}
       {sections.map(({ type, label, input, setInput, placeholder, icon, color }) => (
         <div key={type} className="mb-6">
           <h2 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -156,17 +174,54 @@ export default function Tracker() {
             <div className="space-y-2">
               {data[type].map((item) => (
                 <div key={item._id}
-                  className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-4 py-3 hover:border-indigo-200 transition">
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">{item.text}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {new Date(item.date).toLocaleDateString()}
-                    </p>
+                  className="bg-white border border-gray-200 rounded-lg px-4 py-3 hover:border-indigo-200 transition">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-800">{item.text}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {new Date(item.date).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 ml-4 shrink-0">
+                      <button onClick={() => openNoteEditor(item._id, item.notes)}
+                        className={`transition-colors ${item.notes ? "text-indigo-500" : "text-gray-300 hover:text-indigo-400"}`}>
+                        <StickyNote size={15} />
+                      </button>
+                      <button onClick={() => remove(type, item._id)}
+                        className="text-gray-300 hover:text-red-400 transition-colors">
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
                   </div>
-                  <button onClick={() => remove(type, item._id)}
-                    className="text-gray-300 hover:text-red-400 transition-colors ml-4">
-                    <Trash2 size={15} />
-                  </button>
+
+                  {item.notes && openNotes !== item._id && (
+                    <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mt-2 italic">
+                      {item.notes}
+                    </p>
+                  )}
+
+                  {openNotes === item._id && (
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                      <textarea
+                        value={noteDraft}
+                        onChange={(e) => setNoteDraft(e.target.value)}
+                        placeholder="What did you try? Where did you get stuck?"
+                        rows={3}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 transition resize-none"
+                      />
+                      <div className="flex justify-end gap-2 mt-2">
+                        <button onClick={() => setOpenNotes(null)}
+                          className="text-xs text-gray-500 hover:text-gray-700 px-3 py-1.5">
+                          Cancel
+                        </button>
+                        <button onClick={() => saveNote(type, item._id)}
+                          className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1">
+                          {savedNoteId === item._id ? <Check size={12} /> : null}
+                          Save Note
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

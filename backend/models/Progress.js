@@ -1,8 +1,9 @@
 const mongoose = require("mongoose");
 
 const entrySchema = new mongoose.Schema({
-  text: { type: String, required: true },
-  date: { type: Date,   default: Date.now },
+  text:  { type: String, required: true },
+  notes: { type: String, default: "" },
+  date:  { type: Date, default: Date.now },
 });
 
 const progressSchema = new mongoose.Schema(

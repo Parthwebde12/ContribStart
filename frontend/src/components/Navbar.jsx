@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, LogOut, User } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import logo from "../assets/icon.svg";
 
 const links = [
   { to: "/",          label: "Home"          },
@@ -29,10 +30,13 @@ export default function Navbar() {
 
         <Link to="/" className="flex items-center gap-2 group">
           <div className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/>
-              <path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" y1="9" x2="6" y2="21"/>
-            </svg>
+            <div className="w-7 h-7 rounded-lg overflow-hidden flex items-center justify-center">
+  <img 
+    src={logo} 
+    alt="ContribStart Logo" 
+    className="w-full h-full object-contain"
+  />
+</div>
           </div>
           <span className="font-semibold text-gray-900 text-sm tracking-tight group-hover:text-indigo-600 transition-colors">
             ContribStart

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle2, Circle, Copy, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle2, Circle, Copy, Check, ChevronDown, ChevronUp, Lightbulb } from "lucide-react";
 
 const steps = [
   {
@@ -46,10 +46,26 @@ const steps = [
   },
 ];
 
+const dailyTips = [
+  "Always pull the latest changes from the main branch before starting new work: git pull origin main",
+  "Small PRs get reviewed faster than big ones. Fix one thing at a time.",
+  "If you're stuck, comment on the issue and ask a maintainer for guidance — most are happy to help beginners.",
+  "Use git status often. It tells you exactly what's changed before you commit.",
+  "A good PR description answers: what changed, why, and how to test it.",
+  "Don't be afraid of merge conflicts. They're normal — Git just needs you to pick which change to keep.",
+  "Star repos you contribute to. It's a small way to support maintainers and keeps the repo in your GitHub feed.",
+];
+
+function getTipOfTheDay() {
+  const dayIndex = new Date().getDate() % dailyTips.length;
+  return dailyTips[dayIndex];
+}
+
 export default function GitGuide() {
   const [done,     setDone]     = useState([]);
   const [copied,   setCopied]   = useState(null);
   const [expanded, setExpanded] = useState(0);
+  const [tip]      = useState(getTipOfTheDay());
 
   const toggle = (i) =>
     setDone((prev) => prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]);
@@ -69,6 +85,14 @@ export default function GitGuide() {
         Follow all 7 steps to make your first open source contribution. Check off each step as you go.
       </p>
 
+      <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+        <Lightbulb size={18} className="text-amber-500 shrink-0 mt-0.5" />
+        <div>
+          <p className="text-xs font-semibold text-amber-700 uppercase tracking-wide mb-1">Tip of the Day</p>
+          <p className="text-sm text-amber-800">{tip}</p>
+        </div>
+      </div>
+
       <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-gray-700">Your progress</span>
@@ -80,12 +104,11 @@ export default function GitGuide() {
         </div>
         {done.length === steps.length && (
           <p className="text-sm text-green-600 font-medium mt-2 text-center">
-             All steps done! Now go open that PR.
+            🎉 All steps done! Now go open that PR.
           </p>
         )}
       </div>
 
-      {/* Steps */}
       <div className="space-y-3">
         {steps.map((step, i) => {
           const isDone = done.includes(i);

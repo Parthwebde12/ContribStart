@@ -1,9 +1,29 @@
 import { useState, useEffect } from "react";
 import { api } from "../context/AuthContext";
-import { ExternalLink, Tag, RefreshCw, AlertCircle } from "lucide-react";
+import { ExternalLink, Tag, RefreshCw, AlertCircle, Clock, MessageCircle } from "lucide-react";
 
 const LANGUAGES = ["All","JavaScript","TypeScript","Python","Go","Rust","Java","C++","Ruby","PHP"];
 const TOPICS    = ["All","documentation","testing","bug","feature","cli","web","api"];
+
+function timeAgo(dateStr) {
+  const seconds = Math.floor((new Date() - new Date(dateStr)) / 1000);
+  const intervals = [
+    ["year", 31536000], ["month", 2592000], ["day", 86400],
+    ["hour", 3600], ["minute", 60],
+  ];
+  for (const [label, secs] of intervals) {
+    const count = Math.floor(seconds / secs);
+    if (count >= 1) return `${count}${label[0]} ago`;
+  }
+  return "just now";
+}
+
+function getHealthLevel(updatedAt) {
+  const daysSinceUpdate = (new Date() - new Date(updatedAt)) / 86400000;
+  if (daysSinceUpdate <= 14) return { label: "Active", color: "text-green-600 bg-green-50 border-green-200" };
+  if (daysSinceUpdate <= 60) return { label: "Slow", color: "text-amber-600 bg-amber-50 border-amber-200" };
+  return { label: "Quiet", color: "text-gray-500 bg-gray-50 border-gray-200" };
+}
 
 export default function Issues() {
   const [issues,  setIssues]  = useState([]);
@@ -107,35 +127,53 @@ export default function Issues() {
         <>
           <p className="text-xs text-gray-400 mb-4">{issues.length} issues found</p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {issues.map((issue) => (
-              <div key={issue.id}
-                className="bg-white border border-gray-200 rounded-xl p-5 hover:border-indigo-300 hover:shadow-sm transition flex flex-col">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-gray-400 font-medium truncate max-w-[80%]">
-                    {repoName(issue.repository_url)}
-                  </span>
+            {issues.map((issue) => {
+              const health = getHealthLevel(issue.updated_at);
+              return (
+                <div key={issue.id}
+                  className="bg-white border border-gray-200 rounded-xl p-5 hover:border-indigo-300 hover:shadow-sm transition flex flex-col">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-gray-400 font-medium truncate max-w-[80%]">
+                      {repoName(issue.repository_url)}
+                    </span>
+                    <a href={issue.html_url} target="_blank" rel="noreferrer"
+                      className="text-gray-400 hover:text-indigo-600 transition-colors shrink-0">
+                      <ExternalLink size={15} />
+                    </a>
+                  </div>
+
+                  <h3 className="text-sm font-semibold text-gray-900 leading-snug mb-3 line-clamp-2">
+                    {issue.title}
+                  </h3>
+
+                  <div className="flex items-center gap-3 mb-3 text-xs text-gray-500">
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border font-medium ${health.color}`}>
+                      {health.label}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock size={11} /> updated {timeAgo(issue.updated_at)}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <MessageCircle size={11} /> {issue.comments}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {issue.labels.slice(0, 3).map((label) => (
+                      <span key={label.id}
+                        className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-medium">
+                        <Tag size={9} />{label.name}
+                      </span>
+                    ))}
+                  </div>
+
                   <a href={issue.html_url} target="_blank" rel="noreferrer"
-                    className="text-gray-400 hover:text-indigo-600 transition-colors shrink-0">
-                    <ExternalLink size={15} />
+                    className="mt-auto w-full text-center text-xs font-medium text-indigo-600 border border-indigo-200 rounded-lg py-1.5 hover:bg-indigo-50 transition-colors">
+                    View on GitHub ↗
                   </a>
                 </div>
-                <h3 className="text-sm font-semibold text-gray-900 leading-snug mb-3 line-clamp-2 flex-1">
-                  {issue.title}
-                </h3>
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {issue.labels.slice(0, 3).map((label) => (
-                    <span key={label.id}
-                      className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-medium">
-                      <Tag size={9} />{label.name}
-                    </span>
-                  ))}
-                </div>
-                <a href={issue.html_url} target="_blank" rel="noreferrer"
-                  className="mt-auto w-full text-center text-xs font-medium text-indigo-600 border border-indigo-200 rounded-lg py-1.5 hover:bg-indigo-50 transition-colors">
-                  View on GitHub ↗
-                </a>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </>
       )}
