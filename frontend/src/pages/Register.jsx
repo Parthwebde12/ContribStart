@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
-  const [form,    setForm]    = useState({ name: "", email: "", password: "" });
+  const [form,    setForm]    = useState({ name: "", username: "", email: "", password: "" });
   const [error,   setError]   = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -20,10 +20,14 @@ export default function Register() {
       setError("Password must be at least 6 characters.");
       return;
     }
+    if (!/^[a-z0-9_]{3,20}$/.test(form.username.toLowerCase())) {
+      setError("Username must be 3-20 characters: lowercase letters, numbers, underscores only.");
+      return;
+    }
 
     setLoading(true);
     try {
-      await register(form.name, form.email, form.password);
+      await register(form.name, form.username, form.email, form.password);
       navigate("/tracker");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed. Please try again.");
@@ -59,6 +63,16 @@ export default function Register() {
           />
         </div>
         <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Username</label>
+          <input
+            type="text" name="username" required
+            value={form.username} onChange={handleChange}
+            placeholder="e.g. parth_dev"
+            className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 transition"
+          />
+          <p className="text-xs text-gray-400 mt-1">This will be your public profile URL: /u/{form.username || "yourname"}</p>
+        </div>
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
           <input
             type="email" name="email" required
@@ -73,6 +87,7 @@ export default function Register() {
             type="password" name="password" required
             value={form.password} onChange={handleChange}
             placeholder="At least 6 characters"
+            autoComplete="new-password"
             className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100 transition"
           />
         </div>
@@ -86,6 +101,12 @@ export default function Register() {
         Already have an account?{" "}
         <Link to="/login" className="text-indigo-600 font-medium hover:underline">Log in</Link>
       </p>
+
+
+      <div className=" text-center text-sm m-7"><b>Test account</b>
+        <p>Test1234</p>
+        <p>Test@gmail.com</p>
+      </div>
     </div>
   );
 }

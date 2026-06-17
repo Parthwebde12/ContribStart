@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Navbar from "./components/navbar";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Issues from "./pages/Issues";
 import GitGuide from "./pages/GitGuide";
@@ -7,7 +8,7 @@ import Tracker from "./pages/Tracker";
 import About from "./pages/About";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import Profile from "./pages/Profile";
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -21,12 +22,13 @@ function AppRoutes() {
       <Navbar />
       <main>
         <Routes>
-          <Route path="/"          element={<Home />}     />
-          <Route path="/issues"    element={<Issues />}   />
-          <Route path="/git-guide" element={<GitGuide />} />
-          <Route path="/about"     element={<About />}    />
-          <Route path="/login"     element={<Login />}    />
-          <Route path="/register"  element={<Register />} />
+          <Route path="/"            element={<Home />}     />
+          <Route path="/issues"      element={<Issues />}   />
+          <Route path="/git-guide"   element={<GitGuide />} />
+          <Route path="/about"       element={<About />}    />
+          <Route path="/login"       element={<Login />}    />
+          <Route path="/register"    element={<Register />} />
+          <Route path="/u/:username" element={<Profile />}  />
           <Route path="/tracker" element={
             <PrivateRoute><Tracker /></PrivateRoute>
           } />

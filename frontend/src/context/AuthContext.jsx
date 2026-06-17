@@ -19,7 +19,6 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [loading, setLoading] = useState(true);
 
-  // attach token to every request
   useEffect(() => {
     const id = api.interceptors.request.use((config) => {
       if (token) config.headers.Authorization = `Bearer ${token}`;
@@ -28,7 +27,6 @@ export function AuthProvider({ children }) {
     return () => api.interceptors.request.eject(id);
   }, [token]);
 
-  // load current user on first mount
   useEffect(() => {
     if (!token) { setLoading(false); return; }
     api.get("/api/auth/me")
@@ -44,8 +42,9 @@ export function AuthProvider({ children }) {
     setUser(res.data.user);
   };
 
-  const register = async (name, email, password) => {
-    const res = await api.post("/api/auth/register", { name, email, password });
+  // now takes username as second argument
+  const register = async (name, username, email, password) => {
+    const res = await api.post("/api/auth/register", { name, username, email, password });
     localStorage.setItem("token", res.data.token);
     setToken(res.data.token);
     setUser(res.data.user);

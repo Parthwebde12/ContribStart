@@ -27,7 +27,6 @@ export default function Navbar() {
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
 
-        {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
           <div className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -40,7 +39,6 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop links */}
         <nav className="hidden md:flex items-center gap-0.5">
           {links.map((link) => (
             <Link key={link.to} to={link.to}
@@ -54,13 +52,13 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* Right side */}
         <div className="hidden md:flex items-center gap-3">
           {user ? (
             <>
-              <span className="flex items-center gap-1.5 text-sm text-gray-600 font-medium">
+              <Link to={`/u/${user.username}`}
+                className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-indigo-600 font-medium transition-colors">
                 <User size={14} /> {user.name}
-              </span>
+              </Link>
               <button onClick={handleLogout}
                 className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-600 transition-colors font-medium">
                 <LogOut size={14} /> Logout
@@ -80,13 +78,11 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile toggle */}
         <button className="md:hidden p-1 text-gray-500 hover:text-gray-900" onClick={() => setOpen(!open)}>
           {open ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
 
-      {/* Mobile drawer */}
       {open && (
         <div className="md:hidden border-t border-gray-100 bg-white px-4 py-3 space-y-1">
           {links.map((link) => (
@@ -100,10 +96,16 @@ export default function Navbar() {
             </Link>
           ))}
           {user ? (
-            <button onClick={handleLogout}
-              className="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 flex items-center gap-1.5">
-              <LogOut size={14} /> Logout ({user.name})
-            </button>
+            <>
+              <Link to={`/u/${user.username}`} onClick={() => setOpen(false)}
+                className="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50 flex items-center gap-1.5">
+                <User size={14} /> My Profile
+              </Link>
+              <button onClick={handleLogout}
+                className="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 flex items-center gap-1.5">
+                <LogOut size={14} /> Logout
+              </button>
+            </>
           ) : (
             <>
               <Link to="/login" onClick={() => setOpen(false)}
